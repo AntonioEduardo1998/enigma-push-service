@@ -13,27 +13,27 @@ export class EnigmaService {
   }
 
   public sendDecryptKey(key: string): string {
-    const emails = this.enigmaRepository.listNotificationEmails();
-    emails.forEach(email => {
-      console.log(`Sending decrypt key (${key}) to ${email}...`);
+    const phones = this.enigmaRepository.listNotificationPhones();
+    phones.forEach(phone => {
+      console.log(`Sending decrypt key (${key}) to ${phone}...`);
       this.enigmaRepository.saveHistoric({
         key,
-        email,
+        phone,
         date: new Date(),
       })
     });
     return 'Keys sent!';
   }
 
-  public listNotificationEmails(): string[] {
-    return this.enigmaRepository.listNotificationEmails();
+  public listNotificationPhones(): string[] {
+    return this.enigmaRepository.listNotificationPhones();
   }
 
-  public saveNotificationEmails(emails: string[]): ReturnMessage {
-    return this.enigmaRepository.saveNotificationEmails(emails);
+  public saveNotificationPhones(phones: string[]): ReturnMessage {
+    return this.enigmaRepository.saveNotificationPhones(phones);
   }
 
-  public deleteNotificationEmail(email: string): string[] | ReturnMessage {
-    return this.enigmaRepository.deleteNotificationEmail(email);
+  public deleteNotificationPhone(phone: string): string[] | ReturnMessage {
+    return this.enigmaRepository.deleteNotificationPhone(phone);
   }
 }

@@ -4,28 +4,28 @@ import { ReturnMessage } from "src/interfaces/ReturnMessage";
 
 @Injectable()
 export class EnigmaRepository {
-    private emails: string[] = [];
+    private phones: string[] = [];
     private historic: Historic[] = [];
 
-    public saveNotificationEmails(emails: string[]): ReturnMessage {
-        this.emails = emails;
+    public saveNotificationPhones(phones: string[]): ReturnMessage {
+        this.phones = phones;
         return {
-            message: "Emails saved",
+            message: "Phones saved",
         }
     }
 
-    public listNotificationEmails(): string[] {
-        return this.emails;
+    public listNotificationPhones(): string[] {
+        return this.phones;
     }
 
-    public deleteNotificationEmail(email: string): string[] | ReturnMessage {
-        const emailFounded = this.emails.findIndex(e => e === email);
-        if (emailFounded !== -1) {
-            this.emails.splice(emailFounded, 1);
-            return this.emails;
+    public deleteNotificationPhone(phone: string): string[] | ReturnMessage {
+        const phoneFounded = this.phones.findIndex(p => p === phone);
+        if (phoneFounded !== -1) {
+            this.phones.splice(phoneFounded, 1);
+            return this.phones;
         }
         return {
-            message: "Email not found",
+            message: "Phone not found",
         }
     }
 

@@ -2,6 +2,7 @@ import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
 import { Historic } from './interfaces/Historic';
 import { ReturnMessage } from './interfaces/ReturnMessage';
 import { EnigmaService } from './services/enigma.service';
+import { checkForDuplicates } from './utils/checkForDuplicates';
 
 @Controller()
 export class EnigmaController {
@@ -20,26 +21,35 @@ export class EnigmaController {
   }
 
   @Get('/notification')
-  listNotificationEmails(): string[] {
-    return this.enigmaService.listNotificationEmails();
+  listNotificationPhones(): string[] {
+    return this.enigmaService.listNotificationPhones();
   }
 
   @Post('/notification')
-  saveNotificationEmails(
-    @Body() emails: string[]
+  saveNotificationPhones(
+    @Body() phones: string[]
   ): ReturnMessage {
-    if (!emails.length) {
+    if (!phones.length) {
       return {
-        message: 'No emails provided',
+        message: 'No phones provided',
       }
     }
-    return this.enigmaService.saveNotificationEmails(emails);
+
+    const hasDuplicates = checkForDuplicates(phones);
+
+    if (hasDuplicates) {
+      return {
+        message: 'Duplicated phones not allowed',
+      }
+    }
+
+    return this.enigmaService.saveNotificationPhones(phones);
   }
 
-  @Delete('/notification/:email')
-  deleteNotificationEmail(
-    @Param('email') email: string,
+  @Delete('/notification/:phone')
+  deleteNotificationPhone(
+    @Param('phone') phone: string,
   ): string[] | ReturnMessage {
-    return this.enigmaService.deleteNotificationEmail(email);
+    return this.enigmaService.deleteNotificationPhone(phone);
   }
 }

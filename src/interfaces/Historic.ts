@@ -1,5 +1,5 @@
 export interface Historic {
     key: string;
-    email: string;
+    phone: string;
     date: Date;
 }
