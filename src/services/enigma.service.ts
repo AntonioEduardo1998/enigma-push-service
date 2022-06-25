@@ -1,4 +1,5 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
+import { ClientProxy } from '@nestjs/microservices';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RSA_TOKEN } from 'src/constants/rsa';
 import { Historic } from 'src/Entities/Historic';
@@ -16,6 +17,7 @@ export class EnigmaService {
     private phonesRepository: Repository<Phone>,
     @InjectRepository(Historic)
     private historicRepository: Repository<Historic>,
+    @Inject('PHONES_SERVICE') private client: ClientProxy,
   ) {}
 
   public getKeysHistoric(): Promise<Historic[]> {

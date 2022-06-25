@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ClientsModule, Transport } from '@nestjs/microservices';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { EnigmaController } from './enigma.controller';
 import { Historic } from './Entities/Historic';
@@ -18,6 +19,19 @@ import { EnigmaService } from './services/enigma.service';
       synchronize: true,
     }),
     TypeOrmModule.forFeature([Phone, Historic]),
+    ClientsModule.register([
+      {
+        name: 'PHONES_SERVICE',
+        transport: Transport.RMQ,
+        options: {
+          urls: ['amqp://localhost:5672'],
+          queue: 'phones_queue',
+          queueOptions: {
+            durable: false,
+          },
+        },
+      },
+    ]),
   ],
   controllers: [EnigmaController],
   providers: [EnigmaService],
