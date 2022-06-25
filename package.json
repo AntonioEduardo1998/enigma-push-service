@@ -25,14 +25,18 @@
     "@nestjs/core": "^8.0.0",
     "@nestjs/platform-express": "^8.0.0",
     "@nestjs/swagger": "^5.2.1",
+    "@nestjs/typeorm": "^8.1.4",
     "i": "^0.3.7",
     "node-rsa": "^1.1.1",
     "npm": "^8.8.0",
+    "pg": "^8.7.3",
+    "postgres": "^3.2.4",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^7.2.0",
     "swagger-ui-express": "^4.3.0",
-    "twilio": "^3.76.1"
+    "twilio": "^3.76.1",
+    "typeorm": "^0.3.6"
   },
   "devDependencies": {
     "@nestjs/cli": "^8.0.0",

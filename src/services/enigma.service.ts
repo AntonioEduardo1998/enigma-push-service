@@ -1,18 +1,25 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 import { RSA_TOKEN } from 'src/constants/rsa';
-import { Historic } from 'src/interfaces/Historic';
+import { Historic } from 'src/Entities/Historic';
+import { Phone } from 'src/Entities/Phone';
 import { ReturnMessage } from 'src/interfaces/ReturnMessage';
-import { EnigmaRepository } from 'src/repositories/enigma.repository';
+import { Repository } from 'typeorm';
 
 const accountSid = 'AC63fff6ae4c45d080fb9fded8d110d11c';
 const authToken = 'c3555e3a612b0841cb1e43e4db1cc073';
 
 @Injectable()
 export class EnigmaService {
-  constructor(private enigmaRepository: EnigmaRepository) {}
+  constructor(
+    @InjectRepository(Phone)
+    private phonesRepository: Repository<Phone>,
+    @InjectRepository(Historic)
+    private historicRepository: Repository<Historic>,
+  ) {}
 
-  public getKeysHistoric(): Historic[] {
-    return this.enigmaRepository.getKeysHistoric();
+  public getKeysHistoric(): Promise<Historic[]> {
+    return this.historicRepository.find();
   }
 
   public sendSMS(key: string, phone: string) {
@@ -35,31 +42,58 @@ export class EnigmaService {
     return decrypted;
   }
 
-  public sendDecryptKey(key: string): string {
-    const phones = this.enigmaRepository.listNotificationPhones();
+  public async sendDecryptKey(key: string): Promise<string> {
+    const phones = await this.listNotificationPhones();
 
-    phones.forEach((phone) => {
-      const descrypted = this.sendSMS(key, phone);
+    try {
+      phones.forEach(async (phone) => {
+        const descrypted = this.sendSMS(key, phone.number);
 
-      this.enigmaRepository.saveHistoric({
-        key: descrypted,
-        phone,
-        date: new Date(),
+        await this.historicRepository.save(
+          new Historic(descrypted, phone.number, new Date()),
+        );
       });
-    });
 
-    return 'Keys sent!';
+      return 'Keys sent!';
+    } catch (error) {
+      return 'Keys not sent!';
+    }
   }
 
-  public listNotificationPhones(): string[] {
-    return this.enigmaRepository.listNotificationPhones();
+  public listNotificationPhones(): Promise<Phone[]> {
+    try {
+      return this.phonesRepository.find();
+    } catch (error) {}
   }
 
-  public saveNotificationPhones(phones: string[]): ReturnMessage {
-    return this.enigmaRepository.saveNotificationPhones(phones);
+  public async saveNotificationPhones(phones: Phone[]): Promise<ReturnMessage> {
+    try {
+      await this.phonesRepository.save(phones);
+      return {
+        message: 'Phones saved!',
+      };
+    } catch (error) {
+      return {
+        message: 'Phones not saved!',
+      };
+    }
   }
 
-  public deleteNotificationPhone(phone: string): string[] | ReturnMessage {
-    return this.enigmaRepository.deleteNotificationPhone(phone);
+  public async deleteNotificationPhone(phone: string): Promise<ReturnMessage> {
+    try {
+      const p = await this.phonesRepository.findOne({
+        where: {
+          number: phone,
+        },
+      });
+      await this.phonesRepository.remove(p);
+      return {
+        message: 'Phone deleted!',
+      };
+    } catch (error) {
+      return {
+        message: 'Phone not found!',
+      };
+    }
   }
 }
