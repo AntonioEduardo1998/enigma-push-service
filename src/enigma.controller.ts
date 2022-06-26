@@ -1,5 +1,5 @@
-import { Controller, Delete, Get, Param } from '@nestjs/common';
-import { EventPattern } from '@nestjs/microservices';
+import { Controller, Delete, Get, Inject, Param, Post } from '@nestjs/common';
+import { ClientProxy, EventPattern } from '@nestjs/microservices';
 import { Historic } from './Entities/Historic';
 import { Phone } from './Entities/Phone';
 import { ReturnMessage } from './interfaces/ReturnMessage';
@@ -8,7 +8,20 @@ import { checkForDuplicates } from './utils/checkForDuplicates';
 
 @Controller()
 export class EnigmaController {
-  constructor(private readonly enigmaService: EnigmaService) {}
+  constructor(
+    private readonly enigmaService: EnigmaService,
+    @Inject('PHONES_SERVICE') private client: ClientProxy,
+  ) {}
+
+  @Post('/test')
+  async test() {
+    this.client.emit('send-sms', {
+      key: 'Teste',
+      phone: '+5541999117731',
+    });
+
+    return 'SMS enviado com sucesso.';
+  }
 
   @Get('/historic')
   getKeysHistoric(): Promise<Historic[]> {

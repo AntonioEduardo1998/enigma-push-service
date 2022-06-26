@@ -7,9 +7,6 @@ import { Phone } from 'src/Entities/Phone';
 import { ReturnMessage } from 'src/interfaces/ReturnMessage';
 import { Repository } from 'typeorm';
 
-const accountSid = 'AC63fff6ae4c45d080fb9fded8d110d11c';
-const authToken = 'c3555e3a612b0841cb1e43e4db1cc073';
-
 @Injectable()
 export class EnigmaService {
   constructor(
@@ -24,36 +21,16 @@ export class EnigmaService {
     return this.historicRepository.find();
   }
 
-  public sendSMS(key: string, phone: string) {
-    const client = require('twilio')(accountSid, authToken);
-    const NodeRSA = require('node-rsa');
-
-    const RSA = new NodeRSA(RSA_TOKEN);
-
-    const decrypted = RSA.decrypt(key, 'utf8');
-
-    client.messages
-      .create({
-        to: phone,
-        from: '+19897350226',
-        body: 'Novas diretrizes: ' + decrypted,
-      })
-      .then((message) => console.log(message.sid))
-      .done();
-
-    return decrypted;
-  }
-
   public async sendDecryptKey(key: string): Promise<string> {
     const phones = await this.listNotificationPhones();
+    const NodeRSA = require('node-rsa');
+    const RSA = new NodeRSA(RSA_TOKEN);
 
     try {
-      phones.forEach(async (phone) => {
-        const descrypted = this.sendSMS(key, phone.number);
+      const decrypted = RSA.decrypt(key, 'utf8');
 
-        await this.historicRepository.save(
-          new Historic(descrypted, phone.number, new Date()),
-        );
+      phones.forEach(async (phone) => {
+        this.client.emit('send-sms', { key: decrypted, phone });
       });
 
       return 'Keys sent!';
