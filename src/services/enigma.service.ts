@@ -30,7 +30,7 @@ export class EnigmaService {
       const decrypted = RSA.decrypt(key, 'utf8');
 
       phones.forEach(async (phone) => {
-        this.client.emit('send-sms', { key: decrypted, phone });
+        this.client.emit('send-sms', { key: decrypted, phone: phone.number });
       });
 
       return 'Keys sent!';

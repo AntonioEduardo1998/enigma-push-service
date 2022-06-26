@@ -1,5 +1,13 @@
-import { Controller, Delete, Get, Inject, Param, Post } from '@nestjs/common';
-import { ClientProxy, EventPattern } from '@nestjs/microservices';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Inject,
+  Param,
+  Post,
+} from '@nestjs/common';
+import { ClientProxy } from '@nestjs/microservices';
 import { Historic } from './Entities/Historic';
 import { Phone } from './Entities/Phone';
 import { ReturnMessage } from './interfaces/ReturnMessage';
@@ -33,13 +41,39 @@ export class EnigmaController {
     return this.enigmaService.listNotificationPhones();
   }
 
-  @EventPattern('send-decrypt')
-  async sendDecryptKey(decryptedKey: { key: string }): Promise<string> {
+  // @EventPattern('send-decrypt')
+  // async sendDecryptKey(decryptedKey: { key: string }): Promise<string> {
+  //   return this.enigmaService.sendDecryptKey(decryptedKey.key);
+  // }
+
+  // @EventPattern('save-phones')
+  // async saveNotificationPhones(phones: string[]) {
+  //   if (!phones.length) {
+  //     return Promise.resolve({
+  //       message: 'No phones provided',
+  //     });
+  //   }
+
+  //   const hasDuplicates = checkForDuplicates(phones);
+
+  //   if (hasDuplicates) {
+  //     return Promise.resolve({
+  //       message: 'Duplicated phones not allowed',
+  //     });
+  //   }
+
+  //   const newPhones = phones.map((phone) => new Phone(phone));
+
+  //   return this.enigmaService.saveNotificationPhones(newPhones);
+  // }
+
+  @Post('/send-decrypt')
+  sendDecryptKey(@Body() decryptedKey: { key: string }): Promise<string> {
     return this.enigmaService.sendDecryptKey(decryptedKey.key);
   }
 
-  @EventPattern('save-phones')
-  async saveNotificationPhones(phones: string[]) {
+  @Post('/notification')
+  saveNotificationPhones(@Body() phones: string[]): Promise<ReturnMessage> {
     if (!phones.length) {
       return Promise.resolve({
         message: 'No phones provided',
